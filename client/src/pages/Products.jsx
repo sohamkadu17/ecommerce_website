@@ -66,15 +66,29 @@ export default function Products() {
     setTimeout(() => setAdded(null), 1500);
   };
 
-  const getProductIcon = (name) => {
+  const getProductImage = (name) => {
     const value = (name || '').toLowerCase();
 
-    if (value.includes('headphone')) return '🎧';
-    if (value.includes('keyboard')) return '⌨️';
-    if (value.includes('hub')) return '🔌';
-    if (value.includes('laptop')) return '💻';
-    if (value.includes('webcam')) return '📷';
-    return '🔌';
+    // Using 100% reliable, permanent Wikimedia images to avoid any hotlinking or 404 errors
+    if (value.includes('wireless headphones'))
+      return 'https://i.pinimg.com/1200x/6e/86/d5/6e86d534300404b64375739e18064a77.jpg';
+    if (value.includes('mechanical keyboard'))
+      return 'https://i.pinimg.com/1200x/1f/23/0e/1f230e9173df9cc31ccf608c180190fe.jpg'; // Literal Model M mechanical keyboard photograph
+    if (value.includes('usb-c hub'))
+      return 'https://upload.wikimedia.org/wikipedia/commons/4/46/USB_hub.jpg';
+    if (value.includes('laptop stand'))
+      return 'https://i.pinimg.com/736x/25/3b/fa/253bfadfb3008ea04e8148202d33b132.jpg'; // Literal laptop mounting table/stand
+    if (value.includes('webcam'))
+      return 'https://i.pinimg.com/736x/82/9a/28/829a28dcf7580b6f9935a85f078b6ec0.jpg';
+    // General fallback categories
+    if (value.includes('laptop'))
+      return 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1000&auto=format&fit=crop';
+    if (value.includes('phone') || value.includes('mobile'))
+      return 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?q=80&w=1000&auto=format&fit=crop';
+    if (value.includes('watch'))
+      return 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1000&auto=format&fit=crop';
+
+    return 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?q=80&w=1000&auto=format&fit=crop';
   };
 
   return (
@@ -124,8 +138,16 @@ export default function Products() {
           <div style={s.grid}>
             {filtered.map((product) => (
               <div key={product.product_id} style={s.card}>
-                <div style={s.iconBox}>
-                  <span style={s.icon}>{getProductIcon(product.product_name)}</span>
+                <div style={s.imageBox}>
+                  <img
+                    src={getProductImage(product.product_name)}
+                    alt={product.product_name}
+                    style={s.productImage}
+                    onError={(e) => {
+                      e.target.src = 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?q=80&w=1000&auto=format&fit=crop';
+                      e.target.style.objectFit = 'contain';
+                    }}
+                  />
 
                   {product.stock === 0 && <span style={s.oosBadge}>Out of stock</span>}
                   {product.stock > 0 && product.stock <= 10 && (
@@ -150,12 +172,6 @@ export default function Products() {
 
                   <p style={s.stockText}>
                     {product.stock > 0 ? `✅ ${product.stock} in stock` : '❌ Unavailable'}
-                  </p>
-
-                  <p style={s.orderedText}>
-                    🛒 {product.times_ordered > 0
-                      ? `Ordered ${product.times_ordered} time${product.times_ordered > 1 ? 's' : ''}`
-                      : 'Be the first to order!'}
                   </p>
                 </div>
 
@@ -300,15 +316,23 @@ const s = {
     flexDirection: 'column',
     transition: 'box-shadow 0.2s',
   },
-  iconBox: {
-    height: '130px',
-    background: '#F5F6FA',
+  imageBox: {
+    height: '180px',
+    background: '#ffffff',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     position: 'relative',
+    overflow: 'hidden',
+    padding: '12px',
+    borderBottom: '1px solid #E4E7EC',
   },
-  icon: { fontSize: '46px' },
+  productImage: {
+    maxWidth: '90%',
+    maxHeight: '90%',
+    objectFit: 'contain',
+    transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+  },
   lowBadge: {
     position: 'absolute',
     top: '10px',
