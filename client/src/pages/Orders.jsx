@@ -86,6 +86,18 @@ export default function Orders() {
                 </div>
               )}
 
+              {/* Delivery Address */}
+              {order.address && (
+                <div style={s.addressBox}>
+                  <span style={s.addressLabel}>📍 Delivery Address</span>
+                  <p style={s.addressText}>
+                    {order.address.flat_no && `${order.address.flat_no}, `}
+                    {order.address.building_name && `${order.address.building_name}, `}
+                    {order.address.city}, {order.address.state} — {order.address.pincode}
+                  </p>
+                </div>
+              )}
+
               {/* Items */}
               <div style={s.items}>
                 {order.items.map(item => (
@@ -149,8 +161,11 @@ const s = {
   itemName:  { flex: 1, fontSize: '13px', color: '#374151', fontWeight: '500' },
   itemQty:   { fontSize: '12px', color: '#9CA3AF' },
   itemUnitPrice: { fontSize: '12px', color: '#9CA3AF' },
-  itemPrice: { fontSize: '13px', fontWeight: '600', color: '#4F46E5' },
-  cardFoot: {
+  itemPrice:    { fontSize: '13px', fontWeight: '600', color: '#4F46E5' },
+  addressBox:   { background: '#F0F9FF', borderRadius: '8px', padding: '12px 14px', marginBottom: '16px' },
+  addressLabel: { fontSize: '11px', fontWeight: '600', color: '#0369A1', display: 'block', marginBottom: '4px' },
+  addressText:  { fontSize: '13px', color: '#0C4A6E', margin: 0 },
+  cardFoot:     {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     paddingTop: '14px', borderTop: '1px solid #F3F4F6',
     fontSize: '13px', color: '#6B7280',

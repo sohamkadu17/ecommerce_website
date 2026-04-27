@@ -5,10 +5,10 @@ const router      = express.Router();
 
 // ── POST /api/payment ── Make a payment ──────────────
 router.post('/', verifyToken, (req, res) => {
-  const { order_id, address_id, payment_method } = req.body;
+  const { order_id, payment_method } = req.body;
 
-  if (!order_id || !address_id || !payment_method)
-    return res.status(400).json({ error: 'order_id, address_id, and payment_method are required' });
+  if (!order_id || !payment_method)
+    return res.status(400).json({ error: 'order_id and payment_method are required' });
 
   // Get order to extract user_id
   db.query('SELECT * FROM orders WHERE order_id = ?', [order_id], (err, results) => {
@@ -17,10 +17,10 @@ router.post('/', verifyToken, (req, res) => {
 
     const user_id = results[0].user_id;
 
-    // Insert payment with user_id included
+    // Insert payment (address_id is now in orders table)
     db.query(
-      'INSERT INTO payment (order_id, user_id, address_id, payment_method, status) VALUES (?, ?, ?, ?, ?)',
-      [order_id, user_id, address_id, payment_method, 'completed'],
+      'INSERT INTO payment (order_id, user_id, payment_method, status) VALUES (?, ?, ?, ?)',
+      [order_id, user_id, payment_method, 'completed'],
       (err, result) => {
         if (err) return res.status(500).json({ error: err.message });
 
@@ -39,10 +39,9 @@ router.post('/', verifyToken, (req, res) => {
 // ── GET /api/payment/:orderId ── Get payment for an order ─
 router.get('/:orderId', verifyToken, (req, res) => {
   const sql = `
-    SELECT pay.*, a.city, a.state, a.pincode,
+    SELECT pay.*, 
            u.username, u.email
     FROM payment pay
-    JOIN address a ON pay.address_id = a.address_id
     JOIN users u   ON pay.user_id    = u.user_id
     WHERE pay.order_id = ?
   `;

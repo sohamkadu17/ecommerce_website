@@ -1,0 +1,43 @@
+-- ============================================
+-- SAMPLE DATA (for testing)
+-- ============================================
+
+-- Insert Users
+INSERT INTO users (username, email, password) VALUES
+('john_doe',   'john@gmail.com',  'hashed_password_1'),
+('jane_smith', 'jane@gmail.com',  'hashed_password_2'),
+('raj_kumar',  'raj@gmail.com',   'hashed_password_3');
+
+-- Insert Addresses
+INSERT INTO address (user_id, flat_no, building_name, city, state, pincode) VALUES
+(1, '101', 'Sunshine Apartments', 'Mumbai',    'Maharashtra', '400001'),
+(1, '202', 'Green Valley',        'Pune',      'Maharashtra', '411001'),
+(2, '305', 'Blue Heights',        'Bangalore', 'Karnataka',   '560001'),
+(3, '10',  'Rose Residency',      'Delhi',     'Delhi',       '110001');
+
+-- Insert Products
+INSERT INTO products (product_name, product_price, stock) VALUES
+('Wireless Headphones',  1999.00, 50),
+('Mechanical Keyboard',  3499.00, 30),
+('USB-C Hub',             899.00, 100),
+('Laptop Stand',         1299.00, 75),
+('Webcam HD 1080p',      2499.00, 40);
+
+-- Insert Orders
+INSERT INTO orders (user_id, total_amount, status) VALUES
+(1, 4498.00, 'confirmed'),
+(2, 2499.00, 'delivered'),
+(3, 1299.00, 'pending');
+
+-- Insert Order Items
+INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES
+(1, 1, 1, 1999.00),   -- john ordered headphones
+(1, 3, 1,  899.00),   -- john also ordered USB hub (total = 2898 — example only)
+(2, 5, 1, 2499.00),   -- jane ordered webcam
+(3, 4, 1, 1299.00);   -- raj ordered laptop stand
+
+-- Insert Payments
+INSERT INTO payment (order_id, address_id, payment_method, status) VALUES
+(1, 1, 'upi',         'completed'),
+(2, 3, 'credit_card', 'completed'),
+(3, 4, 'cash',        'pending');
