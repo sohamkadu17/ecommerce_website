@@ -43,6 +43,7 @@ export default function Checkout() {
 
   const addAddress = async () => {
     const u = getUserData();
+    if (!u.id) return alert('Please login again to continue.');
     if (!newAddr.city || !newAddr.state || !newAddr.pincode)
       return alert('City, State and Pincode are required!');
     try {
@@ -55,12 +56,12 @@ export default function Checkout() {
 
   const handleCheckout = async () => {
     const u = getUserData();
+    if (!u.id) return alert('Please login again to continue.');
     if (!selectedAddr) return alert('Please select a delivery address!');
     setLoading(true);
     try {
       const items = cart.map(i => ({ product_id: i.product_id, quantity: i.quantity, unit_price: i.product_price }));
-      // Pass address_id to order (not payment)
-      const { data: orderData } = await API.post('/orders', { user_id: u.id, items, final_amount: finalTotal, address_id: selectedAddr });
+      const { data: orderData } = await API.post('/orders', { items, final_amount: finalTotal, address_id: selectedAddr });
       // Payment no longer needs address_id
       await API.post('/payment', { order_id: orderData.order_id, payment_method: paymentMethod });
       localStorage.removeItem('cart');

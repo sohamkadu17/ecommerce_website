@@ -90,7 +90,7 @@ CREATE TABLE `orders` (
   `user_id` int NOT NULL,
   `address_id` int NOT NULL,
   `total_amount` decimal(10,2) NOT NULL,
-  `status` enum('pending','confirmed','shipped','delivered','cancelled') DEFAULT 'pending',
+  `status` enum('pending','confirmed','shipped','delivered','returned','cancelled') DEFAULT 'pending',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`order_id`),
   KEY `user_id` (`user_id`),
@@ -154,6 +154,7 @@ CREATE TABLE `products` (
   `product_name` varchar(100) NOT NULL,
   `product_price` decimal(10,2) NOT NULL,
   `stock` int NOT NULL DEFAULT '0',
+  `image_url` varchar(255) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`product_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -165,7 +166,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,'Wireless Headphones',1999.00,20,'2026-03-02 09:22:15'),(2,'Mechanical Keyboard',3499.00,9,'2026-03-02 09:22:15'),(3,'USB-C Hub',899.00,65,'2026-03-02 09:22:15'),(4,'Laptop Stand',1299.00,55,'2026-03-02 09:22:15'),(5,'Webcam HD 1080p',2499.00,33,'2026-03-02 09:22:15');
+INSERT INTO `products` VALUES (1,'Wireless Headphones',1999.00,20,NULL,'2026-03-02 09:22:15'),(2,'Mechanical Keyboard',3499.00,9,NULL,'2026-03-02 09:22:15'),(3,'USB-C Hub',899.00,65,NULL,'2026-03-02 09:22:15'),(4,'Laptop Stand',1299.00,55,NULL,'2026-03-02 09:22:15'),(5,'Webcam HD 1080p',2499.00,33,NULL,'2026-03-02 09:22:15');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 

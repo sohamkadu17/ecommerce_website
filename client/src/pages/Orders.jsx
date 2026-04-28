@@ -6,23 +6,68 @@ const STATUS = {
   confirmed: { label: '✅ Confirmed', color: '#4F46E5', bg: '#EEF2FF', border: '#C7D2FE' },
   shipped:   { label: '🚚 Shipped',   color: '#0284C7', bg: '#E0F2FE', border: '#BAE6FD' },
   delivered: { label: '📦 Delivered', color: '#059669', bg: '#F0FDF4', border: '#BBF7D0' },
+  returned:  { label: '↩️ Return Accepted',  color: '#7C3AED', bg: '#F5F3FF', border: '#DDD6FE' },
   cancelled: { label: '❌ Cancelled', color: '#DC2626', bg: '#FEF2F2', border: '#FECACA' },
 };
 
-const PROGRESS = ['pending', 'confirmed', 'shipped', 'delivered'];
-const PROGRESS_ICONS = ['⏳', '✅', '🚚', '📦'];
+const PROGRESS = ['pending', 'confirmed', 'shipped', 'delivered', 'returned'];
+const PROGRESS_ICONS = ['⏳', '✅', '🚚', '📦', '↩️'];
 
 export default function Orders() {
   const [orders, setOrders]   = useState([]);
   const [loading, setLoading] = useState(true);
+  const [busyOrder, setBusyOrder] = useState(null);
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
+    if (!user.id) {
+      setLoading(false);
+      return;
+    }
+
     API.get(`/orders/${user.id}`)
       .then(({ data }) => setOrders(data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []); // eslint-disable-line
+
+  const refreshOrders = async () => {
+    if (!user.id) return;
+    const { data } = await API.get(`/orders/${user.id}`);
+    setOrders(data);
+  };
+
+  const cancelOrder = async (orderId) => {
+    setBusyOrder(orderId);
+    setNotice('');
+    setError('');
+    try {
+      await API.patch(`/orders/${orderId}/cancel`);
+      await refreshOrders();
+      setNotice(`Order #${orderId} cancelled.`);
+    } catch (e) {
+      setError(e.response?.data?.error || 'Failed to cancel order');
+    } finally {
+      setBusyOrder(null);
+    }
+  };
+
+  const returnOrder = async (orderId) => {
+    setBusyOrder(orderId);
+    setNotice('');
+    setError('');
+    try {
+    await API.patch(`/orders/${orderId}/return`);
+      await refreshOrders();
+    setNotice(`Return accepted for order #${orderId}.`);
+    } catch (e) {
+      setError(e.response?.data?.error || 'Failed to return order');
+    } finally {
+      setBusyOrder(null);
+    }
+  };
 
   if (loading)
     return (
@@ -47,6 +92,9 @@ export default function Orders() {
         <h1 style={s.title}>📦 My Orders</h1>
         <span style={s.count}>{orders.length} order{orders.length > 1 ? 's' : ''}</span>
       </div>
+
+      {notice && <div style={s.success}>{notice}</div>}
+      {error && <div style={s.error}>{error}</div>}
 
       <div style={s.list}>
         {orders.map(order => {
@@ -117,6 +165,27 @@ export default function Orders() {
                   💰 Total: <strong style={{ color: '#111827' }}>₹{parseFloat(order.total_amount).toLocaleString()}</strong>
                 </span>
               </div>
+
+              <div style={s.actionRow}>
+                {(order.status === 'pending' || order.status === 'confirmed') && (
+                  <button
+                    style={s.cancelBtn}
+                    onClick={() => cancelOrder(order.order_id)}
+                    disabled={busyOrder === order.order_id}
+                  >
+                    {busyOrder === order.order_id ? 'Working...' : 'Cancel Order'}
+                  </button>
+                )}
+                {order.status === 'delivered' && (
+                  <button
+                    style={s.returnBtn}
+                    onClick={() => returnOrder(order.order_id)}
+                    disabled={busyOrder === order.order_id}
+                  >
+                    {busyOrder === order.order_id ? 'Working...' : 'Request Return'}
+                  </button>
+                )}
+              </div>
             </div>
           );
         })}
@@ -135,8 +204,8 @@ const s = {
   },
   list:    { display: 'flex', flexDirection: 'column', gap: '16px' },
   card: {
-    background: 'white', borderRadius: '14px', padding: '22px',
-    border: '1px solid #E4E7EC', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+    background: 'white', borderRadius: '16px', padding: '22px',
+    border: '1px solid #E4E7EC', boxShadow: '0 8px 24px rgba(15,23,42,0.05)',
   },
   cardHead:  { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' },
   orderNum:  { fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '3px' },
@@ -169,6 +238,45 @@ const s = {
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     paddingTop: '14px', borderTop: '1px solid #F3F4F6',
     fontSize: '13px', color: '#6B7280',
+  },
+  actionRow: { display: 'flex', gap: '10px', marginTop: '14px', flexWrap: 'wrap' },
+  cancelBtn: {
+    border: '1px solid #FCA5A5',
+    background: '#FFF1F2',
+    color: '#B91C1C',
+    padding: '9px 14px',
+    borderRadius: '10px',
+    fontWeight: 700,
+    cursor: 'pointer',
+    fontFamily: 'Outfit, sans-serif',
+  },
+  returnBtn: {
+    border: '1px solid #DDD6FE',
+    background: 'linear-gradient(135deg, #F5F3FF 0%, #EEF2FF 100%)',
+    color: '#6D28D9',
+    padding: '9px 14px',
+    borderRadius: '10px',
+    fontWeight: 700,
+    cursor: 'pointer',
+    fontFamily: 'Outfit, sans-serif',
+  },
+  success: {
+    border: '1px solid #BBF7D0',
+    background: '#F0FDF4',
+    color: '#166534',
+    borderRadius: '10px',
+    padding: '10px 12px',
+    marginBottom: '14px',
+    fontSize: '13px',
+  },
+  error: {
+    border: '1px solid #FECACA',
+    background: '#FEF2F2',
+    color: '#B91C1C',
+    borderRadius: '10px',
+    padding: '10px 12px',
+    marginBottom: '14px',
+    fontSize: '13px',
   },
   footNote:  {},
   footTotal: {},

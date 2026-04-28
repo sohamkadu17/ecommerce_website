@@ -13,6 +13,7 @@ export default function Login() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -59,6 +60,9 @@ export default function Login() {
 
         <p style={s.switch}>
           Don't have an account? <Link to="/register" style={s.switchLink}>Create one</Link>
+        </p>
+        <p style={s.switch}>
+          Admin access? <Link to="/admin/login" style={s.switchLink}>Login as admin</Link>
         </p>
       </div>
     </div>

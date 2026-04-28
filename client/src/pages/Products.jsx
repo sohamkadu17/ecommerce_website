@@ -6,6 +6,7 @@ const PRODUCT_ICONS = ['🎧', '⌨️', '🔌', '💻', '📷', '🖥️', '�
 
 export default function Products() {
   const [products, setProducts] = useState([]);
+  const [hovered, setHovered] = useState(null);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
   const [activeCategory, setActive] = useState('All');
@@ -91,6 +92,8 @@ export default function Products() {
     return 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?q=80&w=1000&auto=format&fit=crop';
   };
 
+  const resolveProductImage = (product) => product.image_url || getProductImage(product.product_name);
+
   return (
     <div style={s.page}>
       <div style={s.hero}>
@@ -137,12 +140,24 @@ export default function Products() {
         ) : (
           <div style={s.grid}>
             {filtered.map((product) => (
-              <div key={product.product_id} style={s.card}>
+              <div
+                key={product.product_id}
+                style={{
+                  ...s.card,
+                  transform: hovered === product.product_id ? 'translateY(-6px)' : 'none',
+                  boxShadow: hovered === product.product_id ? '0 12px 32px rgba(15,23,42,0.08)' : s.card.boxShadow,
+                }}
+                onMouseEnter={() => setHovered(product.product_id)}
+                onMouseLeave={() => setHovered(null)}
+              >
                 <div style={s.imageBox}>
                   <img
-                    src={getProductImage(product.product_name)}
+                    src={resolveProductImage(product)}
                     alt={product.product_name}
-                    style={s.productImage}
+                    style={{
+                      ...s.productImage,
+                      transform: hovered === product.product_id ? 'scale(1.06)' : 'scale(1)'
+                    }}
                     onError={(e) => {
                       e.target.src = 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?q=80&w=1000&auto=format&fit=crop';
                       e.target.style.objectFit = 'contain';
@@ -212,7 +227,7 @@ const s = {
   hero: {
     position: 'relative',
     overflow: 'hidden',
-    background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 50%, #4338CA 100%)',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1d4ed8 60%, #0ea5e9 100%)',
     padding: '60px 40px 70px',
   },
   heroOverlay: {
@@ -294,7 +309,7 @@ const s = {
   sectionTitle: { fontSize: '18px', fontWeight: '700', color: '#111827' },
   countTag: {
     background: '#EEF2FF',
-    color: '#4F46E5',
+    color: '#1d4ed8',
     fontSize: '12px',
     fontWeight: '600',
     padding: '4px 12px',
@@ -311,10 +326,10 @@ const s = {
     borderRadius: '14px',
     overflow: 'hidden',
     border: '1px solid #E4E7EC',
-    boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
+    boxShadow: '0 10px 28px rgba(15,23,42,0.05)',
     display: 'flex',
     flexDirection: 'column',
-    transition: 'box-shadow 0.2s',
+    transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   },
   imageBox: {
     height: '180px',
@@ -328,17 +343,17 @@ const s = {
     borderBottom: '1px solid #E4E7EC',
   },
   productImage: {
-    maxWidth: '90%',
-    maxHeight: '90%',
-    objectFit: 'contain',
-    transition: 'transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    transition: 'transform 0.45s cubic-bezier(.2,.9,.2,1)',
   },
   lowBadge: {
     position: 'absolute',
     top: '10px',
     right: '10px',
-    background: '#FEF3C7',
-    color: '#D97706',
+    background: '#EEF2FF',
+    color: '#4338CA',
     fontSize: '11px',
     fontWeight: '600',
     padding: '3px 8px',
@@ -348,8 +363,8 @@ const s = {
     position: 'absolute',
     top: '10px',
     right: '10px',
-    background: '#FEF2F2',
-    color: '#DC2626',
+    background: '#F5F3FF',
+    color: '#7C3AED',
     fontSize: '11px',
     fontWeight: '600',
     padding: '3px 8px',
@@ -382,14 +397,14 @@ const s = {
     margin: '0 16px 16px',
     padding: '10px',
     border: 'none',
-    borderRadius: '8px',
-    background: '#4F46E5',
+    borderRadius: '10px',
+    background: 'linear-gradient(135deg, #4F46E5 0%, #0EA5E9 100%)',
     color: 'white',
     fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
     fontFamily: 'Outfit, sans-serif',
-    transition: 'all 0.15s',
+    transition: 'all 0.18s',
   },
   addBtnDisabled: { background: '#F3F4F6', color: '#9CA3AF', cursor: 'not-allowed' },
   addBtnAdded: { background: '#059669' },
@@ -398,7 +413,7 @@ const s = {
     position: 'fixed',
     bottom: '28px',
     right: '28px',
-    background: '#4F46E5',
+    background: 'linear-gradient(135deg, #0f172a 0%, #1d4ed8 60%, #0ea5e9 100%)',
     color: 'white',
     border: 'none',
     padding: '13px 22px',
@@ -407,7 +422,7 @@ const s = {
     fontWeight: '600',
     cursor: 'pointer',
     fontFamily: 'Outfit, sans-serif',
-    boxShadow: '0 4px 16px rgba(79,70,229,0.4)',
+    boxShadow: '0 10px 24px rgba(29,78,216,0.32)',
     display: 'flex',
     alignItems: 'center',
     gap: '10px',

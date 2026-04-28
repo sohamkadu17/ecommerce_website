@@ -7,6 +7,7 @@ export default function Navbar() {
   const location  = useLocation();
   const token     = localStorage.getItem('token');
   const user      = JSON.parse(localStorage.getItem('user') || '{}');
+  const isAdmin   = user.role === 'admin';
   const cart      = JSON.parse(localStorage.getItem('cart') || '[]');
   const cartCount = cart.reduce((s, i) => s + i.quantity, 0);
   const isActive  = (p) => location.pathname === p;
@@ -15,7 +16,9 @@ export default function Navbar() {
 
   const navLinks = [
     { path: '/products', label: 'Products', icon: '🏪' },
-    ...(token ? [{ path: '/orders', label: 'Orders', icon: '📦' }] : []),
+    ...(token && !isAdmin ? [{ path: '/orders', label: 'Orders', icon: '📦' }] : []),
+    ...(token && !isAdmin ? [{ path: '/profile', label: 'Profile', icon: '👤' }] : []),
+    ...(token && isAdmin ? [{ path: '/admin', label: 'Admin Panel', icon: '🛠️' }] : []),
   ];
 
   return (
@@ -34,7 +37,7 @@ export default function Navbar() {
       </div>
 
       <div style={s.right}>
-        {token && (
+        {token && !isAdmin && (
           <Link to="/cart" style={{ ...s.cartBtn, ...(isActive('/cart') ? s.cartBtnActive : {}) }}>
             <span>🛒</span>
             <span>Cart</span>
@@ -52,6 +55,7 @@ export default function Navbar() {
         ) : (
           <>
             <Link to="/login"    style={s.loginBtn}>👤 Login</Link>
+            <Link to="/admin/login" style={s.loginBtn}>🛠️ Admin</Link>
             <Link to="/register" style={s.registerBtn}>✨ Register</Link>
           </>
         )}
@@ -63,14 +67,18 @@ export default function Navbar() {
 const s = {
   nav: {
     display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-    padding: '0 40px', height: '66px', background: '#FFFFFF',
-    borderBottom: '1px solid #E4E7EC', position: 'sticky', top: 0, zIndex: 100,
-    boxShadow: '0 1px 6px rgba(0,0,0,0.06)',
+    padding: '0 40px', height: '66px',
+    background: 'rgba(255,255,255,0.82)',
+    backdropFilter: 'blur(14px)',
+    borderBottom: '2px solid #C7D2FE',
+    position: 'sticky', top: 0, zIndex: 100,
+    boxShadow: '0 6px 20px rgba(29,78,216,0.08)',
   },
   brand:     { display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' },
   brandIcon: {
-    width: '36px', height: '36px', background: '#EEF2FF', borderRadius: '10px',
+    width: '36px', height: '36px', background: 'linear-gradient(135deg, #1D4ED8 0%, #0EA5E9 100%)', borderRadius: '10px',
     display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px',
+    boxShadow: '0 6px 14px rgba(29,78,216,0.18)',
   },
   brandName: { fontWeight: '800', color: '#111827', fontSize: '18px' },
   links:     { display: 'flex', gap: '4px' },
@@ -79,7 +87,7 @@ const s = {
     padding: '8px 14px', borderRadius: '8px', textDecoration: 'none',
     color: '#6B7280', fontSize: '14px', fontWeight: '500',
   },
-  linkActive:    { color: '#4F46E5', background: '#EEF2FF', fontWeight: '600' },
+  linkActive:    { color: '#1D4ED8', background: '#EEF2FF', border: '1px solid #C7D2FE', fontWeight: '600' },
   right:         { display: 'flex', alignItems: 'center', gap: '8px' },
   cartBtn: {
     display: 'flex', alignItems: 'center', gap: '6px', position: 'relative',
@@ -98,7 +106,7 @@ const s = {
   userChip: {
     display: 'flex', alignItems: 'center', gap: '8px',
     padding: '5px 12px 5px 5px', borderRadius: '50px',
-    background: '#F9FAFB', border: '1px solid #E4E7EC',
+    background: '#F8FAFF', border: '1px solid #C7D2FE',
   },
   avatar: {
     width: '28px', height: '28px', borderRadius: '50%', background: '#4F46E5',
@@ -113,12 +121,12 @@ const s = {
   },
   loginBtn: {
     display: 'flex', alignItems: 'center', gap: '5px',
-    padding: '7px 14px', border: '1px solid #E4E7EC', borderRadius: '8px',
+    padding: '7px 14px', border: '1px solid #C7D2FE', borderRadius: '8px',
     textDecoration: 'none', color: '#374151', fontSize: '13px', fontWeight: '500',
   },
   registerBtn: {
     display: 'flex', alignItems: 'center', gap: '5px',
-    padding: '7px 14px', background: '#4F46E5', borderRadius: '8px',
+    padding: '7px 14px', background: 'linear-gradient(135deg, #1D4ED8 0%, #0EA5E9 100%)', borderRadius: '8px',
     textDecoration: 'none', color: 'white', fontSize: '13px', fontWeight: '600',
   },
 };
