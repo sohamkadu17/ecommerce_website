@@ -56,6 +56,9 @@ export default function Login() {
           <button style={{ ...s.btn, opacity: loading ? 0.75 : 1 }} type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
+          <div style={s.forgotRow}>
+            <Link to="/forget-password" style={s.forgotLink}>Forgot password?</Link>
+          </div>
         </form>
 
         <p style={s.switch}>
@@ -105,6 +108,8 @@ const s = {
     borderRadius: '8px', color: 'white', fontSize: '14px', fontWeight: '600',
     cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
   },
+  forgotRow: { marginTop: '6px', textAlign: 'right' },
+  forgotLink: { color: '#4F46E5', fontSize: '13px', fontWeight: '600', textDecoration: 'none' },
   switch:     { marginTop: '24px', fontSize: '13px', color: '#6B7280' },
   switchLink: { color: '#4F46E5', fontWeight: '600', textDecoration: 'none' },
 };
