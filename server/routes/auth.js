@@ -9,6 +9,9 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@shopeasy.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 const ADMIN_ID = Number(process.env.ADMIN_ID || 9001);
 
+const OTP_TTL_MS = 5 * 60 * 1000;
+const otpStore = new Map();
+
 router.post('/register', (req, res) => {
   const { username, email, password } = req.body;
   if (!username || !email || !password)
@@ -108,10 +111,36 @@ router.post('/forgot-password', (req, res) => {
 
     if (results.length > 0) {
       const otp = String(Math.floor(100000 + Math.random() * 900000));
+      otpStore.set(results[0].email, { otp, expiresAt: Date.now() + OTP_TTL_MS });
       console.log(`🔐 OTP for ${results[0].email}: ${otp}`);
     }
 
     return res.json({ message: 'If an account exists, an OTP has been sent.' });
+  });
+});
+
+router.post('/reset-password', (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  if (!email || !otp || !newPassword)
+    return res.status(400).json({ error: 'email, otp, and newPassword are required' });
+  if (newPassword.length < 6)
+    return res.status(400).json({ error: 'New password must be at least 6 characters long' });
+
+  const record = otpStore.get(email);
+  if (!record || record.otp !== String(otp) || record.expiresAt < Date.now()) {
+    return res.status(400).json({ error: 'Invalid or expired OTP' });
+  }
+
+  db.query('SELECT user_id FROM users WHERE email = ?', [email], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+    if (results.length === 0) return res.status(400).json({ error: 'Invalid or expired OTP' });
+
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
+    db.query('UPDATE users SET password = ? WHERE email = ?', [hashedPassword, email], (updateErr) => {
+      if (updateErr) return res.status(500).json({ error: updateErr.message });
+      otpStore.delete(email);
+      res.json({ message: 'Password updated successfully' });
+    });
   });
 });
 

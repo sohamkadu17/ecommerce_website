@@ -4,6 +4,9 @@ import API from '../api/axios';
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [step, setStep] = useState('email');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -12,15 +15,34 @@ export default function ForgetPassword() {
     setStatus('');
     setLoading(true);
 
-    if (!email.trim()) {
-      setStatus('Please enter your email address.');
-      setLoading(false);
-      return;
-    }
-
     try {
-      const { data } = await API.post('/auth/forgot-password', { email: email.trim() });
-      setStatus(data?.message || 'If an account exists, an OTP has been sent.');
+      if (step === 'email') {
+        if (!email.trim()) {
+          setStatus('Please enter your email address.');
+          setLoading(false);
+          return;
+        }
+
+        const { data } = await API.post('/auth/forgot-password', { email: email.trim() });
+        setStatus(data?.message || 'If an account exists, an OTP has been sent.');
+        setStep('reset');
+      } else {
+        if (!otp.trim() || !newPassword) {
+          setStatus('Please enter the OTP and a new password.');
+          setLoading(false);
+          return;
+        }
+
+        const { data } = await API.post('/auth/reset-password', {
+          email: email.trim(),
+          otp: otp.trim(),
+          newPassword,
+        });
+        setStatus(data?.message || 'Password updated successfully.');
+        setOtp('');
+        setNewPassword('');
+        setStep('email');
+      }
     } catch (err) {
       setStatus(err.response?.data?.error || 'Something went wrong. Please try again.');
     } finally {
@@ -32,7 +54,11 @@ export default function ForgetPassword() {
     <div style={s.page}>
       <div style={s.card}>
         <h1 style={s.title}>Reset your password</h1>
-        <p style={s.subtitle}>Enter your email and we will send you an OTP.</p>
+        <p style={s.subtitle}>
+          {step === 'email'
+            ? 'Enter your email and we will send you an OTP.'
+            : 'Enter the OTP and choose a new password.'}
+        </p>
 
         {status && <div style={s.status}>{status}</div>}
 
@@ -44,11 +70,36 @@ export default function ForgetPassword() {
             placeholder="you@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={step !== 'email'}
             required
           />
 
+          {step === 'reset' && (
+            <>
+              <label style={s.label}>OTP</label>
+              <input
+                style={s.input}
+                type="text"
+                placeholder="6-digit OTP"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+
+              <label style={s.label}>New password</label>
+              <input
+                style={s.input}
+                type="password"
+                placeholder="••••••••"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </>
+          )}
+
           <button style={{ ...s.btn, opacity: loading ? 0.75 : 1 }} type="submit" disabled={loading}>
-            {loading ? 'Sending...' : 'Send OTP'}
+            {loading ? 'Sending...' : step === 'email' ? 'Send OTP' : 'Reset password'}
           </button>
         </form>
 
