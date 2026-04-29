@@ -99,6 +99,22 @@ router.post('/admin/login', (req, res) => {
   });
 });
 
+router.post('/forgot-password', (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: 'Email is required' });
+
+  db.query('SELECT user_id, email FROM users WHERE email = ?', [email], (err, results) => {
+    if (err) return res.status(500).json({ error: err.message });
+
+    if (results.length > 0) {
+      const otp = String(Math.floor(100000 + Math.random() * 900000));
+      console.log(`🔐 OTP for ${results[0].email}: ${otp}`);
+    }
+
+    return res.json({ message: 'If an account exists, an OTP has been sent.' });
+  });
+});
+
 router.get('/me', verifyToken, (req, res) => {
   if (req.user.role === 'admin') {
     return res.json({ id: ADMIN_ID, username: 'Admin', email: ADMIN_EMAIL, role: 'admin' });

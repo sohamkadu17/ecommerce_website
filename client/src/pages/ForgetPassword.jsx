@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import API from '../api/axios';
 
 export default function ForgetPassword() {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setStatus('');
     setLoading(true);
@@ -17,15 +18,21 @@ export default function ForgetPassword() {
       return;
     }
 
-    setStatus('If an account exists for this email, a reset link has been sent.');
-    setLoading(false);
+    try {
+      const { data } = await API.post('/auth/forgot-password', { email: email.trim() });
+      setStatus(data?.message || 'If an account exists, an OTP has been sent.');
+    } catch (err) {
+      setStatus(err.response?.data?.error || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={s.page}>
       <div style={s.card}>
         <h1 style={s.title}>Reset your password</h1>
-        <p style={s.subtitle}>Enter your email and we will send you a reset link.</p>
+        <p style={s.subtitle}>Enter your email and we will send you an OTP.</p>
 
         {status && <div style={s.status}>{status}</div>}
 
@@ -41,7 +48,7 @@ export default function ForgetPassword() {
           />
 
           <button style={{ ...s.btn, opacity: loading ? 0.75 : 1 }} type="submit" disabled={loading}>
-            {loading ? 'Sending...' : 'Send reset link'}
+            {loading ? 'Sending...' : 'Send OTP'}
           </button>
         </form>
 
