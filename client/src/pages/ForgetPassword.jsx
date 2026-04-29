@@ -7,6 +7,7 @@ export default function ForgetPassword() {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [step, setStep] = useState('email');
+  const [showPassword, setShowPassword] = useState(false);
   const [status, setStatus] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -87,14 +88,23 @@ export default function ForgetPassword() {
               />
 
               <label style={s.label}>New password</label>
-              <input
-                style={s.input}
-                type="password"
-                placeholder="••••••••"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
+              <div style={s.passwordRow}>
+                <input
+                  style={{ ...s.input, ...s.passwordInput }}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="••••••••"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+                <button
+                  type="button"
+                  style={s.toggleBtn}
+                  onClick={() => setShowPassword((v) => !v)}
+                >
+                  {showPassword ? 'Hide' : 'Show'}
+                </button>
+              </div>
             </>
           )}
 
@@ -142,6 +152,19 @@ const s = {
   },
   form: { display: 'flex', flexDirection: 'column', gap: '12px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#374151' },
+  passwordRow: { display: 'flex', gap: '8px', alignItems: 'center' },
+  passwordInput: { flex: 1 },
+  toggleBtn: {
+    padding: '10px 12px',
+    border: '1.5px solid #E4E7EC',
+    borderRadius: '8px',
+    background: '#fff',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    color: '#374151',
+    fontFamily: 'Outfit, sans-serif',
+  },
   input: {
     padding: '11px 14px',
     border: '1.5px solid #E4E7EC',
