@@ -6,6 +6,7 @@ export default function AdminLogin() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const submit = async (e) => {
@@ -44,13 +45,22 @@ export default function AdminLogin() {
           />
 
           <label style={s.label}>Password</label>
-          <input
-            style={s.input}
-            type="password"
-            value={form.password}
-            onChange={(e) => setForm({ ...form, password: e.target.value })}
-            required
-          />
+          <div style={s.passwordRow}>
+            <input
+              style={{ ...s.input, ...s.passwordInput }}
+              type={showPassword ? 'text' : 'password'}
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              required
+            />
+            <button
+              type="button"
+              style={s.toggleBtn}
+              onClick={() => setShowPassword((v) => !v)}
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
 
           <button style={s.btn} disabled={loading}>
             {loading ? 'Logging in...' : 'Login as Admin'}
@@ -95,6 +105,19 @@ const s = {
   sub: { fontSize: '13px', color: '#6B7280', marginBottom: '20px' },
   form: { display: 'flex', flexDirection: 'column', gap: '10px' },
   label: { fontSize: '13px', color: '#374151', fontWeight: 600 },
+  passwordRow: { display: 'flex', gap: '8px', alignItems: 'center' },
+  passwordInput: { flex: 1 },
+  toggleBtn: {
+    padding: '10px 12px',
+    border: '1.5px solid #E4E7EC',
+    borderRadius: '10px',
+    background: '#fff',
+    fontSize: '12px',
+    fontWeight: 600,
+    cursor: 'pointer',
+    color: '#374151',
+    fontFamily: 'Outfit, sans-serif',
+  },
   input: {
     border: '1.5px solid #E4E7EC',
     borderRadius: '10px',

@@ -9,6 +9,7 @@ export default function Login() {
   const [error, setError]     = useState('');
   const [loading, setLoading] = useState(false);
   const [focused, setFocused] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,21 +39,43 @@ export default function Login() {
         {error && <div style={s.error}>{error}</div>}
 
         <form onSubmit={handleSubmit} style={s.form}>
-          {[
-            { name: 'email',    type: 'email',    label: 'Email',    placeholder: 'you@email.com' },
-            { name: 'password', type: 'password', label: 'Password', placeholder: '••••••••' },
-          ].map(({ name, type, label, placeholder }) => (
-            <div key={name} style={s.field}>
-              <label style={s.label}>{label}</label>
+          <div style={s.field}>
+            <label style={s.label}>Email</label>
+            <input
+              style={{ ...s.input, ...(focused === 'email' ? s.inputFocused : {}) }}
+              type="email" name="email" placeholder="you@email.com"
+              value={form.email} onChange={handleChange}
+              onFocus={() => setFocused('email')} onBlur={() => setFocused(null)}
+              required
+            />
+          </div>
+          <div style={s.field}>
+            <label style={s.label}>Password</label>
+            <div style={s.passwordRow}>
               <input
-                style={{ ...s.input, ...(focused === name ? s.inputFocused : {}) }}
-                type={type} name={name} placeholder={placeholder}
-                value={form[name]} onChange={handleChange}
-                onFocus={() => setFocused(name)} onBlur={() => setFocused(null)}
+                style={{
+                  ...s.input,
+                  ...s.passwordInput,
+                  ...(focused === 'password' ? s.inputFocused : {}),
+                }}
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                placeholder="••••••••"
+                value={form.password}
+                onChange={handleChange}
+                onFocus={() => setFocused('password')}
+                onBlur={() => setFocused(null)}
                 required
               />
+              <button
+                type="button"
+                style={s.toggleBtn}
+                onClick={() => setShowPassword((v) => !v)}
+              >
+                {showPassword ? 'Hide' : 'Show'}
+              </button>
             </div>
-          ))}
+          </div>
           <button style={{ ...s.btn, opacity: loading ? 0.75 : 1 }} type="submit" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
@@ -94,6 +117,19 @@ const s = {
   form:  { display: 'flex', flexDirection: 'column', gap: '18px', textAlign: 'left' },
   field: { display: 'flex', flexDirection: 'column', gap: '6px' },
   label: { fontSize: '13px', fontWeight: '600', color: '#374151' },
+  passwordRow: { display: 'flex', gap: '8px', alignItems: 'center' },
+  passwordInput: { flex: 1 },
+  toggleBtn: {
+    padding: '10px 12px',
+    border: '1.5px solid #E4E7EC',
+    borderRadius: '8px',
+    background: '#fff',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    color: '#374151',
+    fontFamily: 'Outfit, sans-serif',
+  },
   input: {
     padding: '11px 14px', border: '1.5px solid #E4E7EC', borderRadius: '8px',
     fontSize: '14px', outline: 'none', fontFamily: 'Outfit, sans-serif',
